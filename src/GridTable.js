@@ -29,6 +29,13 @@ class GridTable extends React.PureComponent {
     this.renderRow = this.renderRow.bind(this);
   }
 
+  componentDidMount() {
+    const { flipScrollOrientation = false } = this.props;
+    if (flipScrollOrientation) {
+      this.scrollToBottom();
+    }
+  }
+
   resetAfterRowIndex(rowIndex = 0, shouldForceUpdate) {
     if (!this.props.estimatedRowHeight) return;
     this.bodyRef && this.bodyRef.resetAfterRowIndex(rowIndex, shouldForceUpdate);
@@ -46,6 +53,12 @@ class GridTable extends React.PureComponent {
 
   scrollToTop(scrollTop) {
     this.bodyRef && this.bodyRef.scrollTo({ scrollTop });
+  }
+
+  scrollToBottom() {
+    if (this.bodyRef && this.innerRef) {
+      this.bodyRef.scrollTo({ scrollTop: this.innerRef.scrollHeight });
+    }
   }
 
   scrollToLeft(scrollLeft) {
@@ -217,6 +230,7 @@ GridTable.propTypes = {
   onRowsRendered: PropTypes.func,
   headerRenderer: PropTypes.func.isRequired,
   rowRenderer: PropTypes.func.isRequired,
+  flipScrollOrientation: PropTypes.bool,
 };
 
 export default GridTable;

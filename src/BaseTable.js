@@ -1262,6 +1262,11 @@ BaseTable.propTypes = {
    */
   getScrollbarSize: PropTypes.func,
   /**
+   * Change direction of infinite scrolling. The scrollbar is at the very bottom
+   * and `onEndReached` will be triggered when hitting the head of the table.
+   */
+  flipScrollOrientation: PropTypes.bool,
+  /**
    * A callback function when scrolling the table
    * The handler is of the shape of `({ scrollLeft, scrollTop, horizontalScrollDirection, verticalScrollDirection, scrollUpdateWasRequested }) => *`
    *
