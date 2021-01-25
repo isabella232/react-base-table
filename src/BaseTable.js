@@ -897,14 +897,26 @@ class BaseTable extends React.PureComponent {
     }
   }
 
-  _maybeCallOnEndReached() {
-    const { onEndReached, onEndReachedThreshold } = this.props;
+  _calcDistanceFromEnd() {
     const { scrollTop } = this._scroll;
     const scrollHeight = this.getTotalRowsHeight();
     const clientHeight = this._getBodyHeight();
 
+    if (this.props.flipScrollOrientation) {
+      return scrollTop;
+    }
+
+    return scrollHeight - scrollTop - clientHeight + this._horizontalScrollbarSize;
+  }
+
+  _maybeCallOnEndReached() {
+    const { onEndReached = () => {}, onEndReachedThreshold } = this.props;
+    const scrollHeight = this.getTotalRowsHeight();
+    const clientHeight = this._getBodyHeight();
+
     if (!onEndReached || !clientHeight || !scrollHeight) return;
-    const distanceFromEnd = scrollHeight - scrollTop - clientHeight + this._horizontalScrollbarSize;
+    const distanceFromEnd = this._calcDistanceFromEnd();
+
     if (
       this._lastScannedRowIndex >= 0 &&
       distanceFromEnd <= onEndReachedThreshold &&
@@ -916,19 +928,30 @@ class BaseTable extends React.PureComponent {
     }
   }
 
+  _checkScrollDifference(now, last) {
+    if (this.props.flipScrollOrientation) {
+      return now < last;
+    }
+    return now > last;
+  }
+
   _handleScroll(args) {
     const lastScrollTop = this._scroll.scrollTop;
     this.scrollToPosition(args);
     this.props.onScroll(args);
 
-    if (args.scrollTop > lastScrollTop) this._maybeCallOnEndReached();
+    if (this._checkScrollDifference(args.scrollTop, lastScrollTop)) {
+      this._maybeCallOnEndReached();
+    }
   }
 
   _handleVerticalScroll({ scrollTop }) {
     const lastScrollTop = this._scroll.scrollTop;
 
     if (scrollTop !== lastScrollTop) this.scrollToTop(scrollTop);
-    if (scrollTop > lastScrollTop) this._maybeCallOnEndReached();
+    if (this._checkScrollDifference(scrollTop, lastScrollTop)) {
+      this._maybeCallOnEndReached();
+    }
   }
 
   _handleRowsRendered(args) {
@@ -1280,6 +1303,7 @@ BaseTable.propTypes = {
   onScroll: PropTypes.func,
   /**
    * A callback function when scrolling the table within `onEndReachedThreshold` of the bottom
+   * (or head when `flipScrollOrientation is set`).
    * The handler is of the shape of `({ distanceFromEnd }) => *`
    */
   onEndReached: PropTypes.func,
