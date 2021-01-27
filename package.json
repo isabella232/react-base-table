@@ -30,7 +30,7 @@
     "prebuild": "npm run clean",
     "precommit": "lint-staged",
     "prepush": "npm run test",
-    "preinstall": "npm install --ignore-scripts && npm run build",
+    "preinstall": "yarn install --ignore-scripts && yarn build --ignore-scripts",
     "prepublish": "npm run build && npm run test",
     "test": "jest"
   },
